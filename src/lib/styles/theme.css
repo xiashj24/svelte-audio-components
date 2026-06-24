@@ -1,0 +1,58 @@
+/*
+ * Design tokens — "minilogue-ish" skeuomorphic theme.
+ *
+ * The widgets read these custom properties (with fallbacks), so the whole look
+ * is reskinnable from one place: override any of these on a parent element to
+ * make a different-looking product. The "material" (gradients, bevels, glow)
+ * lives in each component; these tokens only set the colors that feed it.
+ *
+ * Aesthetic target: brushed-aluminium panel, black top-lit knobs with a single
+ * white indicator, engraved dark labels, amber indicator LEDs.
+ * Balanced modern/classic — restrained, not cartoonish.
+ */
+:root {
+  --hw-font: 'Inter', 'Helvetica Neue', system-ui, sans-serif;
+
+  /* Engraved text on the silver panel */
+  --hw-ink: #303134;
+  --hw-ink-soft: #5d5f63;
+  --hw-engrave: rgba(255, 255, 255, 0.55); /* light edge under engraved text */
+
+  /* Silk-screened ink — printed rules/graphics sitting on top of the panel
+     (opaque & flat, unlike engraved text which has a raised light edge) */
+  --hw-print: #1b1c1f;
+
+  /* Accent / indicator colour (Minilogue sequencer amber) */
+  --hw-accent: #ff7a1f;
+  --led-color: #ff5a2a;
+  --led-green: #5fe08a;
+
+  /* Text display (OLED-style screen). The idle/dim colour is derived from
+     --display-on inside the component, so overriding the lit colour is enough. */
+  --display-bg: #07140f;
+  --display-on: #57e6a0; /* lit phosphor green */
+
+  /* Brushed-aluminium panel */
+  --panel-hi: #e6e7e9;
+  --panel-mid: #cccdd0;
+  --panel-lo: #b0b2b6;
+  --panel-edge: #8d8f93;
+
+  /* Black knob body (top-lit) */
+  --knob-hi: #4c4d51;
+  --knob-mid: #292a2d;
+  --knob-base: #121214;
+  --knob-edge: #050506;
+  --knob-pointer: #f4f4f5;
+  --knob-track: rgba(0, 0, 0, 0.3);
+
+  /* Physical button cap */
+  --btn-hi: #3c3d41;
+  --btn-mid: #25262a;
+  --btn-lo: #16171a;
+
+  /* Recessed slider channel + metal cap */
+  --slot-bg: #2a2b2e;
+  --cap-hi: #5a5c61;
+  --cap-lo: #2a2b2e;
+}
