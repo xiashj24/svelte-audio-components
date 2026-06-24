@@ -3,3 +3,7 @@ dist/
 *.local
 .DS_Store
 .svelte-kit/
+
+# Vitest browser-mode artifacts (failure screenshots, etc.)
+__screenshots__/
+**/.vitest-attachments/
