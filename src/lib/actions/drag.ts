@@ -45,13 +45,30 @@ export const drag: Action<HTMLElement | SVGElement, DragOptions> = (node, option
     dragging = true;
     lastX = e.clientX;
     lastY = e.clientY;
-    node.setPointerCapture(e.pointerId); // keep receiving moves outside the element
+    // Listen on window for the rest of the gesture so the release is caught no
+    // matter where the pointer ends up. Relying on the element alone leaves the
+    // drag stuck when the pointer leaves the element or pointer capture is lost.
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
+    try {
+      node.setPointerCapture(e.pointerId); // keep receiving moves outside the element
+    } catch {
+      /* synthetic / inactive pointers can't be captured — window listeners cover us */
+    }
     opts.onStart?.();
     e.preventDefault();
   }
 
   function onPointerMove(e: PointerEvent) {
     if (!dragging) return;
+    // No button held means we missed the release — it happened off-window, where
+    // no pointerup is ever delivered. End the drag instead of resuming on the
+    // first move after the pointer returns. (e.buttons is a bitmask; 0 = none.)
+    if (e.buttons === 0) {
+      endDrag(e);
+      return;
+    }
     const dx = e.clientX - lastX;
     const dy = e.clientY - lastY;
     lastX = e.clientX;
@@ -67,8 +84,15 @@ export const drag: Action<HTMLElement | SVGElement, DragOptions> = (node, option
   }
 
   function onPointerUp(e: PointerEvent) {
+    endDrag(e);
+  }
+
+  function endDrag(e: PointerEvent) {
     if (!dragging) return;
     dragging = false;
+    window.removeEventListener('pointermove', onPointerMove);
+    window.removeEventListener('pointerup', onPointerUp);
+    window.removeEventListener('pointercancel', onPointerUp);
     try {
       node.releasePointerCapture(e.pointerId);
     } catch {
@@ -78,9 +102,6 @@ export const drag: Action<HTMLElement | SVGElement, DragOptions> = (node, option
   }
 
   el.addEventListener('pointerdown', onPointerDown);
-  el.addEventListener('pointermove', onPointerMove);
-  el.addEventListener('pointerup', onPointerUp);
-  el.addEventListener('pointercancel', onPointerUp);
   // Prevent the page from scrolling/zooming while dragging on touch screens.
   el.style.touchAction = 'none';
 
@@ -90,9 +111,10 @@ export const drag: Action<HTMLElement | SVGElement, DragOptions> = (node, option
     },
     destroy() {
       el.removeEventListener('pointerdown', onPointerDown);
-      el.removeEventListener('pointermove', onPointerMove);
-      el.removeEventListener('pointerup', onPointerUp);
-      el.removeEventListener('pointercancel', onPointerUp);
+      // Drop any window listeners if we're torn down mid-gesture.
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerUp);
     },
   };
 };

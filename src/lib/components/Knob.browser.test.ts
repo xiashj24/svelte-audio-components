@@ -17,7 +17,9 @@ function dragVertically(el: HTMLElement, fromY: number, toY: number) {
   el.releasePointerCapture = () => {};
   const opts = { pointerId: 1, button: 0, bubbles: true };
   el.dispatchEvent(new PointerEvent('pointerdown', { ...opts, clientY: fromY }));
-  el.dispatchEvent(new PointerEvent('pointermove', { ...opts, clientY: toY }));
+  // buttons: 1 = left button still held (a move with no button held is treated
+  // as a missed release and ends the drag).
+  el.dispatchEvent(new PointerEvent('pointermove', { ...opts, clientY: toY, buttons: 1 }));
   el.dispatchEvent(new PointerEvent('pointerup', { ...opts, clientY: toY }));
 }
 
